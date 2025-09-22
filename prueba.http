@@ -16,3 +16,22 @@ Content-Type: application/json
   "username": "artista1",
   "password": "123456"
 }
+
+### Listar obras públicas
+GET http://127.0.0.1:8000/api/artworks/
+
+### Subir nueva obra (requiere token)
+POST http://127.0.0.1:8000/api/artworks/
+Authorization: Token {{token}}
+Content-Type: multipart/form-data
+
+title=Paisaje en acuarela
+&description=Un paisaje pintado al atardecer
+&image=@/ruta/a/imagen.jpg
+
+### Ver detalles de una obra
+GET http://127.0.0.1:8000/api/artworks/1/
+
+### Eliminar obra (solo autor)
+DELETE http://127.0.0.1:8000/api/artworks/1/
+Authorization: Token {{token}}
