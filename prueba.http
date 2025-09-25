@@ -22,7 +22,7 @@ GET http://127.0.0.1:8000/api/artworks/
 
 ### Subir nueva obra (requiere token)
 POST http://127.0.0.1:8000/api/artworks/
-Authorization: Token {{token}}
+Authorization: Token 56b07442e96850767ed2f98e484a9ae52b708e9f
 Content-Type: multipart/form-data
 
 title=Paisaje en acuarela
@@ -34,4 +34,4 @@ GET http://127.0.0.1:8000/api/artworks/1/
 
 ### Eliminar obra (solo autor)
 DELETE http://127.0.0.1:8000/api/artworks/1/
-Authorization: Token {{token}}
+Authorization: Token 56b07442e96850767ed2f98e484a9ae52b708e9f
