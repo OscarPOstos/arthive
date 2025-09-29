@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Artwork, Layer
+from .models import Artwork, Layer, Vote
 
 class ArtworkSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
@@ -15,4 +15,12 @@ class LayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Layer
         fields = ["id", "artwork", "user", "image", "created_at"]
+        read_only_fields = ["id", "artwork", "user", "created_at"]
+
+class VoteSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Vote
+        fields = ["id", "artwork", "user", "value", "created_at"]
         read_only_fields = ["id", "artwork", "user", "created_at"]

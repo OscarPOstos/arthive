@@ -1,7 +1,9 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from django.db.models import Sum
 from rest_framework.exceptions import PermissionDenied
-from .models import Artwork, Layer
-from .serializers import ArtworkSerializer, LayerSerializer
+from .models import Artwork, Layer, Vote
+from .serializers import ArtworkSerializer, LayerSerializer, VoteSerializer
 
 # GET /api/artworks/  |  POST /api/artworks/
 class ArtworkListCreateView(generics.ListCreateAPIView):
@@ -35,3 +37,42 @@ class LayerListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         artwork_id = self.kwargs["pk"]
         serializer.save(user=self.request.user, artwork_id=artwork_id)
+
+
+class ArtworkVoteView(generics.GenericAPIView):
+    serializer_class = VoteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        """Votar una obra (+1 o -1)"""
+        artwork_id = pk
+        value = request.data.get("value")
+
+        if value not in [1, -1, "1", "-1"]:
+            return Response({"error": "Valor inválido, usa 1 o -1"}, status=400)
+
+        vote, created = Vote.objects.update_or_create(
+            artwork_id=artwork_id,
+            user=request.user,
+            defaults={"value": int(value)}
+        )
+        return Response(
+            {"message": "Voto registrado", "value": vote.value},
+            status=status.HTTP_200_OK
+        )
+
+
+class ArtworkVotesCountView(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        """Ver conteo de votos"""
+        total = Vote.objects.filter(artwork_id=pk).aggregate(score=Sum("value"))["score"] or 0
+        likes = Vote.objects.filter(artwork_id=pk, value=1).count()
+        dislikes = Vote.objects.filter(artwork_id=pk, value=-1).count()
+        return Response({
+            "artwork_id": pk,
+            "total_score": total,
+            "likes": likes,
+            "dislikes": dislikes
+        })
