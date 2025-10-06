@@ -37,3 +37,12 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"{self.user.username} votó {self.value} en {self.artwork.title}"
+
+class Comment(models.Model):
+    artwork = models.ForeignKey("artworks.Artwork", on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="artwork_comments")
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.content[:30]}"

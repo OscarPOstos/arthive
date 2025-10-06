@@ -2,8 +2,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django.db.models import Sum
 from rest_framework.exceptions import PermissionDenied
-from .models import Artwork, Layer, Vote
-from .serializers import ArtworkSerializer, LayerSerializer, VoteSerializer
+from .models import Artwork, Layer, Vote, Comment
+from .serializers import ArtworkSerializer, LayerSerializer, VoteSerializer, CommentSerializer
+
 
 # GET /api/artworks/  |  POST /api/artworks/
 class ArtworkListCreateView(generics.ListCreateAPIView):
@@ -76,3 +77,16 @@ class ArtworkVotesCountView(generics.RetrieveAPIView):
             "likes": likes,
             "dislikes": dislikes
         })
+
+class ArtworkCommentsView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Comment.objects.filter(artwork_id=self.kwargs["pk"]).order_by("-created_at")
+
+    def perform_create(self, serializer):
+        serializer.save(
+            artwork_id=self.kwargs["pk"],
+            user=self.request.user
+        )
